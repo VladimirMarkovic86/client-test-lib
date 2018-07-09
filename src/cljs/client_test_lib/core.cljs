@@ -3,11 +3,14 @@
             [utils-lib.core :as utils]
             [htmlcss-lib.core :refer [gen textarea]]))
 
-(def done (atom 0))
+(def done
+     (atom 0))
 
-(def windows-atom (atom []))
+(def windows-atom
+     (atom []))
 
-(def number-of-bots (atom 1))
+(def number-of-bots
+     (atom 1))
 
 (defn opener-console
   "Log testing progress in textarea of opener and focused window"
@@ -90,7 +93,7 @@
                test-case-vector))
         )
       100))
-  )
+ )
 
 (defn open-new-window
   "Opens new window with URL same as of it's opener's"
@@ -136,7 +139,7 @@
     (md/click
       fn-elem
       window-obj))
-  )
+ )
 
 (defn append-element-fn
   "Helper function for appending textarea in opener and focused window"
@@ -152,7 +155,7 @@
     (md/append-element
       content
       append-element))
-  )
+ )
 
 (defn open-windows
   "Opens as much windows as bots-number fn parameter says so and one more as focus window
@@ -174,7 +177,7 @@
       conj
       (open-new-window
         window-name))
-    )
+   )
   (let [focused-window (last
                          @windows-atom)
         all-windows (utils/remove-index-from-vector
@@ -275,7 +278,7 @@
       [[".content"
         find-and-run
         main-test-fn]]))
-  )
+ )
 
 ; This code is executed only when window is focused window
 ; window.name = 1
