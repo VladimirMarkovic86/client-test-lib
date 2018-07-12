@@ -12,10 +12,26 @@
 (def number-of-bots
      (atom 1))
 
-(defn opener-console
-  "Log testing progress in textarea of opener and focused window"
-  [window-obj
-   log-obj]
+(defn- wait-for-element
+  ""
+  [wait-for-selector
+   execute-fn
+   fn-params]
+  (md/timeout
+    #(if-let [elem (md/query-selector
+                     wait-for-selector)]
+       (execute-fn
+         fn-params)
+       (wait-for-element
+         wait-for-selector
+         execute-fn
+         fn-params))
+    100))
+
+(defn log-action
+  ""
+  [{window-obj :window-obj
+    log-obj :log-obj}]
   (let [test-monitor (md/query-selector
                        "#testMonitor")
         opener-test-monitor (md/query-selector-on-element
@@ -39,7 +55,17 @@
     (md/set-inner-html
       opener-test-monitor
       new-monitor-inner-html))
-  )
+ )
+
+(defn opener-console
+  "Log testing progress in textarea of opener and focused window"
+  [window-obj
+   log-obj]
+  (wait-for-element
+    "#testMonitor"
+    log-action
+    {:window-obj window-obj
+     :log-obj log-obj}))
 
 (defn execute-vector-when-loaded
   "Execute vector of selectors and functions
@@ -120,7 +146,9 @@
     inc)
   (opener-console
     js/window
-    "Done")
+    (str
+      fn-params
+      " done"))
   (when (= @number-of-bots
            @done)
     (.close
@@ -190,7 +218,7 @@
                          (textarea
                            ""
                            {:id "testMonitor"
-                            :style {:height "calc(100% - 50px)"
+                            :style {:height "calc(100% - 55px)"
                                     :width "100%"
                                     :resize "none"}
                             :readonly true}))
