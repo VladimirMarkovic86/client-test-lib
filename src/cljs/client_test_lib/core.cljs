@@ -164,7 +164,8 @@
                     window-obj
                     "document")
                   fn-selector)]
-    (md/click
+    (md/dispatch-event
+      "click"
       fn-elem
       window-obj))
  )
