@@ -13,7 +13,7 @@
      (atom 1))
 
 (defn- wait-for-element
-  ""
+  "Wait for selected element to load"
   [wait-for-selector
    execute-fn
    fn-params]
@@ -29,7 +29,7 @@
     100))
 
 (defn log-action
-  ""
+  "Log performed action in textarea logger"
   [{window-obj :window-obj
     log-obj :log-obj}]
   (let [test-monitor (md/query-selector
