@@ -12,6 +12,9 @@
 (def number-of-bots
      (atom 1))
 
+(def main-test-fn-a
+     (atom nil))
+
 (defn- wait-for-element
   "Wait for selected element to load"
   [wait-for-selector
@@ -30,19 +33,11 @@
 
 (defn log-action
   "Log performed action in textarea logger"
-  [{window-obj :window-obj
-    log-obj :log-obj}]
+  [{log-obj :log-obj}]
   (let [test-monitor (md/query-selector
                        "#testMonitor")
-        opener-test-monitor (md/query-selector-on-element
-                              (aget
-                                (aget
-                                  window-obj
-                                  "opener")
-                                "document")
-                              "#testMonitor")
         monitor-inner-html (md/get-inner-html
-                             opener-test-monitor)
+                             test-monitor)
         new-monitor-inner-html (str
                                  (js/Date.)
                                  ": "
@@ -51,21 +46,16 @@
                                  monitor-inner-html)]
     (md/set-inner-html
       test-monitor
-      new-monitor-inner-html)
-    (md/set-inner-html
-      opener-test-monitor
       new-monitor-inner-html))
  )
 
 (defn opener-console
   "Log testing progress in textarea of opener and focused window"
-  [window-obj
-   log-obj]
+  [log-obj]
   (wait-for-element
     "#testMonitor"
     log-action
-    {:window-obj window-obj
-     :log-obj log-obj}))
+    {:log-obj log-obj}))
 
 (defn execute-vector-when-loaded
   "Execute vector of selectors and functions
@@ -145,7 +135,6 @@
     done
     inc)
   (opener-console
-    js/window
     (str
       fn-params
       " done"))
@@ -194,11 +183,9 @@
    and passes that variable to focused widnow
    
    Also main-test-fn parameter is passed to focused window and bots-number"
-  [bots-number
-   main-test-fn]
+  [main-test-fn]
   (doseq [window-name (range
-                        (inc
-                          bots-number)
+                        @number-of-bots
                         0
                         -1)]
     (swap!
@@ -207,115 +194,40 @@
       (open-new-window
         window-name))
    )
-  (let [focused-window (last
-                         @windows-atom)
-        all-windows (utils/remove-index-from-vector
-                      @windows-atom
-                      (dec
-                        (count
-                          @windows-atom))
-                     )
-        textarea-field (gen
+  (let [textarea-field (gen
                          (textarea
                            ""
                            {:id "testMonitor"
                             :style {:height "calc(100% - 55px)"
                                     :width "100%"
                                     :resize "none"}
-                            :readonly true}))
-        last-textarea-field (gen
-                              (textarea
-                                ""
-                                {:id "testMonitor"
-                                 :style {:height "100%"
-                                         :width "100%"
-                                         :resize "none"}
-                                 :readonly true}))
-        indexes-array (into
-                        []
-                        (.split
-                          (aget
-                            main-test-fn
-                            "name")
-                          "$"))]
-    (execute-vector-when-loaded
-      focused-window
-      [[".content"
-        append-element-fn
-        {:element-selector ".content"
-         :append-element last-textarea-field}]])
+                            :readonly true}))]
     (execute-vector-when-loaded
       js/window
       [[".content"
         append-element-fn
         {:element-selector ".content"
          :append-element textarea-field}]])
-    (aset
-      focused-window
-      "allWindows"
-      all-windows)
-    (aset
-      focused-window
-      "mainTestFn"
-      indexes-array)
-    (aset
-      focused-window
-      "botsNumber"
-      bots-number))
+    (reset!
+      main-test-fn-a
+      main-test-fn))
  )
 
 (defn run-tests
   "Function that should be called from code that is being tested"
   [main-test-fn
    & [bots-number]]
-  (open-windows
+  (reset!
+    number-of-bots
     (or bots-number
-        @number-of-bots)
-    main-test-fn))
-
-(defn run-finally
-  "This function is called only if opened window name is 1,
-   this name identifies focused window
-   
-   It fetches all three parameters from window that were set by opener window
-   waits for page to be loaded and runs main-test-fn with all parameters
-   "
-  []
-  (let [all-windows (aget
-                      js/window
-                      "allWindows")
-        main-test-fn (aget
-                       js/window
-                       "mainTestFn")
-        bots-number (aget
-                      js/window
-                      "botsNumber")
-        find-and-run (fn [main-test-fn]
-                       (let [main-test-fn (apply
-                                            aget
-                                            js/window
-                                            main-test-fn)]
-                         (doseq [window-obj all-windows]
-                           (main-test-fn
-                             window-obj))
-                        ))]
-    (reset!
-      number-of-bots
-      bots-number)
-    (execute-vector-when-loaded
-      js/window
-      [[".content"
-        find-and-run
-        main-test-fn]]))
+        1))
+  (open-windows
+    main-test-fn)
+  (doseq [window-obj @windows-atom]
+    (@main-test-fn-a
+      window-obj))
  )
 
-; This code is executed only when window is focused window
-; window.name = 1
-(let [window-name (aget
-                    js/window
-                    "name")]
-  (when (= window-name
-           "1")
-    (run-finally))
- )
+; mozilla -> about:config
+; browser.tabs.loadDivertedInBackground=true
 
