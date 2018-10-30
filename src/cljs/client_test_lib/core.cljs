@@ -138,11 +138,7 @@
     (str
       fn-params
       " done"))
-  (when (= @number-of-bots
-           @done)
-    (.close
-      js/window))
-  )
+ )
 
 (defn click-elem
   "Helper function for clicking on an element selected by fn-selector in window-obj"
