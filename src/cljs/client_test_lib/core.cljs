@@ -35,7 +35,7 @@
   "Log performed action in textarea logger"
   [{log-obj :log-obj}]
   (let [test-monitor (md/query-selector
-                       "#testMonitor")
+                       "#test-monitor-id")
         monitor-inner-html (md/get-inner-html
                              test-monitor)
         new-monitor-inner-html (str
@@ -53,7 +53,7 @@
   "Log testing progress in textarea of opener and focused window"
   [log-obj]
   (wait-for-element
-    "#testMonitor"
+    "#test-monitor-id"
     log-action
     {:log-obj log-obj}))
 
@@ -81,7 +81,8 @@
          fn-params] (first test-case-vector)]
     (md/timeout
       #(if-let [elem (md/query-selector-on-element
-                       (aget window-obj "document")
+                       (.-document
+                         window-obj)
                        wait-for-selector)]
          (let [test-case-vector (utils/remove-index-from-vector
                                   test-case-vector
@@ -145,9 +146,8 @@
   [fn-selector
    window-obj]
   (let [fn-elem (md/query-selector-on-element
-                  (aget
-                    window-obj
-                    "document")
+                  (.-document
+                    window-obj)
                   fn-selector)]
     (md/dispatch-event
       "click"
@@ -160,14 +160,12 @@
   [{element-selector :element-selector
     append-element :append-element}
    window-obj]
-  (let [document (aget
-                   window-obj
-                   "document")
-        content (md/query-selector-on-element
-                  document
-                  element-selector)]
+  (let [document (.-document
+                   window-obj)]
+    (md/remove-element-content
+      element-selector)
     (md/append-element
-      content
+      element-selector
       append-element))
  )
 
@@ -193,8 +191,8 @@
   (let [textarea-field (gen
                          (textarea
                            ""
-                           {:id "testMonitor"
-                            :style {:height "calc(100% - 55px)"
+                           {:id "test-monitor-id"
+                            :style {:height "100%"
                                     :width "100%"
                                     :resize "none"}
                             :readonly true}))]
