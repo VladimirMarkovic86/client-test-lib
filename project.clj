@@ -1,4 +1,4 @@
-(defproject org.clojars.vladimirmarkovic86/client-test-lib "0.2.11"
+(defproject org.clojars.vladimirmarkovic86/client-test-lib "0.2.12"
   :description "Simple client test library"
   :url "https://github.com/VladimirMarkovic86/client-test-lib"
   :license {:name "Eclipse Public License"

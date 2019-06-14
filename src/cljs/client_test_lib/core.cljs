@@ -215,6 +215,12 @@
     number-of-bots
     (or bots-number
         1))
+  (reset!
+    windows-atom
+    [])
+  (reset!
+    done
+    0)
   (open-windows
     main-test-fn)
   (doseq [window-obj @windows-atom]
