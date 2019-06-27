@@ -15,42 +15,78 @@
 (def main-test-fn-a
      (atom nil))
 
-(defn- wait-for-element
+(def wait-for-element-a-fn
+     (atom nil))
+
+(defn execute-if-element-loaded
+  "Executes function if element is loaded"
+  [wait-for-selector
+   execute-fn
+   fn-params]
+  (when (and (string?
+               wait-for-selector)
+             (not
+               (empty?
+                 wait-for-selector))
+             (fn?
+               execute-fn))
+    (if-let [elem (md/query-selector
+                    wait-for-selector)]
+      (execute-fn
+        fn-params)
+      (when (fn?
+              @wait-for-element-a-fn)
+        (@wait-for-element-a-fn
+          wait-for-selector
+          execute-fn
+          fn-params))
+     ))
+ )
+
+(defn wait-for-element
   "Wait for selected element to load"
   [wait-for-selector
    execute-fn
    fn-params]
-  (md/timeout
-    #(if-let [elem (md/query-selector
-                     wait-for-selector)]
-       (execute-fn
-         fn-params)
-       (wait-for-element
+  (when (and (string?
+               wait-for-selector)
+             (not
+               (empty?
+                 wait-for-selector))
+             (fn?
+               execute-fn))
+    (md/timeout
+      #(execute-if-element-loaded
          wait-for-selector
          execute-fn
-         fn-params))
-    100))
+         fn-params)
+      100))
+ )
+
+(reset!
+  wait-for-element-a-fn
+  wait-for-element)
 
 (defn log-action
   "Log performed action in textarea logger"
   [{log-obj :log-obj}]
-  (let [test-monitor (md/query-selector
-                       "#test-monitor-id")
-        monitor-inner-html (md/get-inner-html
-                             test-monitor)
-        new-monitor-inner-html (str
-                                 (js/Date.)
-                                 ": "
-                                 log-obj
-                                 "\n"
-                                 monitor-inner-html)]
-    (md/set-inner-html
-      test-monitor
-      new-monitor-inner-html))
- )
+  (when-let [test-monitor (md/query-selector
+                            "#test-monitor-id")]
+    (let [monitor-inner-html (md/get-inner-html
+                               test-monitor)
+          new-monitor-inner-html (str
+                                   (js/Date.)
+                                   ": "
+                                   log-obj
+                                   "\n"
+                                   monitor-inner-html)]
+      (md/set-inner-html
+        test-monitor
+        new-monitor-inner-html))
+   ))
 
 (defn opener-console
-  "Log testing progress in textarea of opener and focused window"
+  "Log testing progress in textarea of opener window"
   [log-obj]
   (wait-for-element
     "#test-monitor-id"
@@ -78,7 +114,8 @@
    test-case-vector]
   (let [[wait-for-selector
          execute-fn
-         fn-params] (first test-case-vector)]
+         fn-params] (first
+                      test-case-vector)]
     (md/timeout
       #(if-let [elem (md/query-selector-on-element
                        (.-document
@@ -144,23 +181,35 @@
 (defn click-elem
   "Helper function for clicking on an element selected by fn-selector in window-obj"
   [fn-selector
-   window-obj]
-  (let [fn-elem (md/query-selector-on-element
-                  (.-document
-                    window-obj)
-                  fn-selector)]
-    (md/dispatch-event
-      "click"
-      fn-elem
-      window-obj))
- )
+   & [window-obj]]
+  (when (or (and (string?
+                   fn-selector)
+                 (not
+                   (empty?
+                     fn-selector))
+             )
+            (md/html?
+              fn-selector))
+    (let [window-obj (or window-obj
+                         js/window)
+          fn-elem (md/query-selector-on-element
+                    (.-document
+                      window-obj)
+                    fn-selector)]
+      (md/dispatch-event
+        "click"
+        fn-elem
+        window-obj))
+   ))
 
 (defn append-element-fn
   "Helper function for appending textarea in opener and focused window"
   [{element-selector :element-selector
     append-element :append-element}
-   window-obj]
-  (let [document (.-document
+   & [window-obj]]
+  (let [window-obj (or window-obj
+                       js/window)
+        document (.-document
                    window-obj)]
     (md/remove-element-content
       element-selector)
@@ -224,9 +273,11 @@
   (open-windows
     main-test-fn)
   (doseq [window-obj @windows-atom]
-    (@main-test-fn-a
-      window-obj))
- )
+    (when (fn?
+            @main-test-fn-a)
+      (@main-test-fn-a
+        window-obj))
+   ))
 
 ; mozilla -> about:config
 ; browser.tabs.loadDivertedInBackground=true
