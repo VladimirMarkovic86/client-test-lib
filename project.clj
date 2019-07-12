@@ -1,10 +1,10 @@
-(defproject org.clojars.vladimirmarkovic86/client-test-lib "0.2.13"
+(defproject org.clojars.vladimirmarkovic86/client-test-lib "0.2.14"
   :description "Simple client test library"
   :url "https://github.com/VladimirMarkovic86/client-test-lib"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojurescript "1.10.339"]
-                 [org.clojars.vladimirmarkovic86/utils-lib "0.4.9"]
+                 [org.clojars.vladimirmarkovic86/utils-lib "0.4.10"]
                  [org.clojars.vladimirmarkovic86/js-lib "0.1.16"]
                  [org.clojars.vladimirmarkovic86/htmlcss-lib "0.1.6"]
                  ]
