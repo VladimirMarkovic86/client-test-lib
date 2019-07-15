@@ -1,21 +1,19 @@
-(defproject org.clojars.vladimirmarkovic86/client-test-lib "0.2.17"
+(defproject org.clojars.vladimirmarkovic86/client-test-lib "0.2.18"
   :description "Simple client test library"
   :url "https://github.com/VladimirMarkovic86/client-test-lib"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojurescript "1.10.339"]
-                 [org.clojars.vladimirmarkovic86/utils-lib "0.4.12"]
-                 [org.clojars.vladimirmarkovic86/js-lib "0.1.18"]
-                 [org.clojars.vladimirmarkovic86/htmlcss-lib "0.1.8"]
+                 [org.clojars.vladimirmarkovic86/utils-lib "0.4.13"]
+                 [org.clojars.vladimirmarkovic86/js-lib "0.1.19"]
+                 [org.clojars.vladimirmarkovic86/htmlcss-lib "0.1.9"]
                  ]
 
   :min-lein-version "2.0.0"
   
   :source-paths ["src/cljs"]
   
-  :jar-exclusions [#"^public/"
-                   #"README.md$"
-                   #"LICENSE$"]
+  :jar-exclusions [#"^public/"]
 
   :plugins [[lein-cljsbuild  "1.1.7"]
             [lein-doo "0.1.11"]
