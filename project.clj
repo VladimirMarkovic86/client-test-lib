@@ -1,4 +1,4 @@
-(defproject org.clojars.vladimirmarkovic86/client-test-lib "0.2.15"
+(defproject org.clojars.vladimirmarkovic86/client-test-lib "0.2.16"
   :description "Simple client test library"
   :url "https://github.com/VladimirMarkovic86/client-test-lib"
   :license {:name "Eclipse Public License"
@@ -12,6 +12,8 @@
   :min-lein-version "2.0.0"
   
   :source-paths ["src/cljs"]
+  
+  :jar-exclusions [#"^public/"]
 
   :plugins [[lein-cljsbuild  "1.1.7"]
             [lein-doo "0.1.11"]
